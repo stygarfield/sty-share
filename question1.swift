@@ -53,4 +53,29 @@ struct ListedSheet: View {
     }
 }
 
+class FirestoreManager: ObservableObject {
+    @Published var docID: String = ""
+    @Published var userName: String = ""
+    @Published var userEmail: String = ""
+    
+    func fetchCon() {
+        let db = Firestore.firestore()
+        let docRef = db.collection(K.FStore.UserCollection).document(docID)
+        
+        docRef.getDocument { (document, error) in
+              guard error == nil else {
+                  print("error", error ?? "")
+                  return
+              }
 
+              if let document = document, document.exists {
+                  let data = document.data()
+                  if let data = data {
+                      self.userName = data[K.FStore.UserName] as? String ?? ""
+                      self.userEmail = data[K.FStore.UserEmail] as? String ?? ""
+                  }
+              }
+
+          }
+      }
+}
